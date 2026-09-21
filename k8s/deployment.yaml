@@ -7,6 +7,7 @@ metadata:
     app: edgeshield
 spec:
   replicas: 2
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: edgeshield
@@ -17,7 +18,7 @@ spec:
     spec:
       containers:
         - name: edgeshield
-          image: gacarneirojrx/edgeshield:latest
+          image: gacarneirojrx/edgeshield:97eeb95800b8b795ac3cc233c504be24352524a3
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
