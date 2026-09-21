@@ -17,8 +17,8 @@ spec:
     spec:
       containers:
         - name: edgeshield
-          image: gabrielcjr/edgeshield:latest
-          imagePullPolicy: IfNotPresent
+          image: gacarneirojrx/edgeshield:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080
               name: http
