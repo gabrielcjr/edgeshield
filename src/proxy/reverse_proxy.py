@@ -5,6 +5,7 @@ from typing import Set
 import httpx
 from opentelemetry import trace
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
+from starlette.background import BackgroundTask
 from starlette.requests import Request
 from starlette.responses import Response, StreamingResponse
 
@@ -113,7 +114,7 @@ class ReverseProxyEngine:
                     upstream_res.aiter_raw(),
                     status_code=upstream_res.status_code,
                     headers=res_headers,
-                    background=httpx.Response.aclose(upstream_res),
+                    background=BackgroundTask(upstream_res.aclose),
                 )
 
             except httpx.TimeoutException as exc:
