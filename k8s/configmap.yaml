@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: edgeshield-config
-  namespace: default
+  namespace: edgeshield
 data:
   APP_ENV: "production"
   PORT: "8080"
