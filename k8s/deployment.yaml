@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edgeshield
+  namespace: default
+  labels:
+    app: edgeshield
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: edgeshield
+  template:
+    metadata:
+      labels:
+        app: edgeshield
+    spec:
+      containers:
+        - name: edgeshield
+          image: gabrielcjr/edgeshield:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+          envFrom:
+            - configMapRef:
+                name: edgeshield-config
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 5

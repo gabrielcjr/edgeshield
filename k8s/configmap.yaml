@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: edgeshield-config
+  namespace: default
+data:
+  APP_ENV: "production"
+  PORT: "8080"
+  REDIS_URL: "redis://redis.default.svc.cluster.local:6379/0"
+  REDIS_TIMEOUT_SECONDS: "0.5"
+  CB_FAILURE_THRESHOLD: "5"
+  CB_RECOVERY_TIMEOUT: "15.0"
+  OTEL_ENABLED: "true"
+  OTEL_SERVICE_NAME: "edgeshield-gateway"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://signoz-otel-collector.signoz.svc.cluster.local:4318"

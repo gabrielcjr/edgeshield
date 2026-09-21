@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "edgeshield"
+version = "0.1.0"
+description = "High-Performance Distributed API Gateway & Rate-Limiter Engine with Redis Lua, In-Memory Circuit Breaker Fallback, and SigNoz OpenTelemetry Observability"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [
+    { name = "Gabriel Carneiro Jr.", email = "gabrielcjr4@gmail.com" }
+]
+license = { text = "MIT" }
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = "test_*.py"
+pythonpath = ["."]
+addopts = "-v --tb=short"
+
+[tool.black]
+line-length = 100
+target-version = ['py312']
+
+[tool.isort]
+profile = "black"
+line_length = 100
