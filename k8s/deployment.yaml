@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: edgeshield
-          image: gacarneirojrx/edgeshield:97eeb95800b8b795ac3cc233c504be24352524a3
+          image: gacarneirojrx/edgeshield:f61749bf08c379dfde32158814c52eb0e765497b
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
