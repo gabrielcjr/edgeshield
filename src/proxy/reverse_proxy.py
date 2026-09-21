@@ -24,14 +24,29 @@ HOP_BY_HOP_HEADERS: Set[str] = {
 }
 
 
+DEFAULT_UPSTREAM_ROUTES: dict[str, str] = {
+    "gabrielcjr.website": "http://portfolio-service.portfolio.svc.cluster.local:80",
+    "www.gabrielcjr.website": "http://portfolio-service.portfolio.svc.cluster.local:80",
+    "atsproof.website": "http://atsproof-service.atsproof.svc.cluster.local:8000",
+    "www.atsproof.website": "http://atsproof-service.atsproof.svc.cluster.local:8000",
+    "findjobs.gabrielcjr.website": "http://frontend-service.jobs.svc.cluster.local:80",
+    "amae.gabrielcjr.website": "http://amae-service.amae.svc.cluster.local:8000",
+}
+
+
 class ReverseProxyEngine:
     """High-performance async reverse proxy forwarding requests to upstream microservices."""
 
-    def __init__(self, upstream_base_url: str, timeout_seconds: float = 30.0):
+    def __init__(
+        self,
+        upstream_base_url: str,
+        timeout_seconds: float = 30.0,
+        upstream_routes: dict[str, str] | None = None,
+    ):
         self.upstream_base_url = upstream_base_url.rstrip("/")
         self.timeout_seconds = timeout_seconds
+        self.upstream_routes = upstream_routes if upstream_routes is not None else DEFAULT_UPSTREAM_ROUTES
         self.client = httpx.AsyncClient(
-            base_url=self.upstream_base_url,
             timeout=httpx.Timeout(timeout_seconds),
             follow_redirects=False,
             limits=httpx.Limits(max_keepalive_connections=100, max_connections=200),
@@ -51,10 +66,16 @@ class ReverseProxyEngine:
         if request.url.query:
             url_path = f"{url_path}?{request.url.query}"
 
+        # Resolve upstream target based on Host header or fallback
+        host_header = request.headers.get("host", "").split(":")[0].lower()
+        upstream_base = self.upstream_routes.get(host_header, self.upstream_base_url)
+        target_url = f"{upstream_base.rstrip('/')}{url_path}"
+
         # 1. Clean headers and preserve essential client info
         forward_headers = {
             k: v for k, v in request.headers.items() if k.lower() not in HOP_BY_HOP_HEADERS and k.lower() != "host"
         }
+        forward_headers["host"] = host_header or "localhost"
 
         # 2. Inject W3C TraceContext for SigNoz distributed tracing
         carrier = {}
@@ -67,12 +88,12 @@ class ReverseProxyEngine:
         start_time = time.monotonic()
         with tracer.start_as_current_span(f"edgeshield.proxy {method} {url_path}") as span:
             span.set_attribute("http.method", method)
-            span.set_attribute("http.url", f"{self.upstream_base_url}{url_path}")
+            span.set_attribute("http.url", target_url)
 
             try:
                 upstream_req = self.client.build_request(
                     method=method,
-                    url=url_path,
+                    url=target_url,
                     headers=forward_headers,
                     content=body if body else None,
                 )

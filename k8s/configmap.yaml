@@ -6,7 +6,8 @@ metadata:
 data:
   APP_ENV: "production"
   PORT: "8080"
-  REDIS_URL: "redis://redis.default.svc.cluster.local:6379/0"
+  UPSTREAM_URL: "http://portfolio-service.portfolio.svc.cluster.local:80"
+  REDIS_URL: "redis://edgeshield-redis.edgeshield.svc.cluster.local:6379/0"
   REDIS_TIMEOUT_SECONDS: "0.5"
   CB_FAILURE_THRESHOLD: "5"
   CB_RECOVERY_TIMEOUT: "15.0"

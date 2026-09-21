@@ -11,8 +11,12 @@ from src.core.policies import ClientIdentityExtractor
 from src.limiters.base import BaseRateLimiter
 from src.telemetry.otel import record_request_metric, tracer
 
-# Endpoints excluded from rate limiting
+# Endpoints and static asset extensions excluded from rate limiting
 EXCLUDED_PATHS: Set[str] = {"/healthz", "/health", "/metrics", "/favicon.ico", "/docs", "/openapi.json"}
+STATIC_EXTENSIONS: Set[str] = {
+    ".css", ".js", ".mjs", ".png", ".jpg", ".jpeg", ".gif",
+    ".svg", ".webp", ".ico", ".woff", ".woff2", ".ttf", ".eot", ".map"
+}
 
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
@@ -29,8 +33,8 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
         path = request.url.path
 
-        # Bypass rate limiting for internal health / metrics endpoints
-        if path in EXCLUDED_PATHS:
+        # Bypass rate limiting for internal health / metrics endpoints and static web assets
+        if path in EXCLUDED_PATHS or any(path.lower().endswith(ext) for ext in STATIC_EXTENSIONS):
             return await call_next(request)
 
         # 1. Identify Client and Authorization Tier

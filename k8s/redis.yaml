@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edgeshield-redis
+  namespace: edgeshield
+  labels:
+    app: edgeshield-redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: edgeshield-redis
+  template:
+    metadata:
+      labels:
+        app: edgeshield-redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379
+              name: redis
+          resources:
+            requests:
+              cpu: 20m
+              memory: 32Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: edgeshield-redis
+  namespace: edgeshield
+spec:
+  type: ClusterIP
+  selector:
+    app: edgeshield-redis
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: 6379
