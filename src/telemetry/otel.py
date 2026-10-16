@@ -1,4 +1,4 @@
-"""OpenTelemetry Telemetry & SigNoz Instrumentation for EdgeShield."""
+"""OpenTelemetry Telemetry & Distributed Tracing Instrumentation for EdgeShield."""
 
 import logging
 import time
@@ -52,12 +52,12 @@ fallback_counter = meter.create_counter(
 
 def setup_telemetry(
     service_name: str = "edgeshield-gateway",
-    endpoint: str = "http://signoz-otel-collector.signoz.svc.cluster.local:4318",
+    endpoint: str = "http://jaeger.jaeger.svc.cluster.local:4318",
     environment: str = "production",
     enabled: bool = True,
 ) -> None:
     """
-    Initializes the OpenTelemetry SDK with OTLP HTTP exporters pointing to SigNoz.
+    Initializes the OpenTelemetry SDK with OTLP HTTP exporters pointing to Jaeger.
     """
     if not enabled or not endpoint:
         logger.info("OpenTelemetry telemetry is disabled or endpoint is empty.")
@@ -86,9 +86,9 @@ def setup_telemetry(
         meter_provider = MeterProvider(resource=resource, metric_readers=[metric_reader])
         metrics.set_meter_provider(meter_provider)
 
-        logger.info("Successfully initialized OpenTelemetry export to SigNoz at %s", endpoint)
+        logger.info("Successfully initialized OpenTelemetry export to Jaeger at %s", endpoint)
     except Exception as exc:
-        logger.warning("Failed to initialize OpenTelemetry SigNoz exporter: %s", exc)
+        logger.warning("Failed to initialize OpenTelemetry Jaeger exporter: %s", exc)
 
 
 def record_request_metric(tier: str, status_code: int, is_blocked: bool = False, is_fallback: bool = False) -> None:

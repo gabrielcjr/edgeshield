@@ -46,9 +46,9 @@ class Settings(BaseSettings):
     circuit_breaker_half_open_probes: int = Field(default=3)
     memory_fallback_max_entries: int = Field(default=10000)
 
-    # SigNoz / OpenTelemetry
+    # Jaeger / OpenTelemetry
     otel_exporter_otlp_endpoint: str = Field(
-        default="http://signoz-otel-collector.signoz.svc.cluster.local:4318"
+        default="http://jaeger.jaeger.svc.cluster.local:4318"
     )
     otel_service_name: str = Field(default="edgeshield-gateway")
     otel_enabled: bool = Field(default=True)

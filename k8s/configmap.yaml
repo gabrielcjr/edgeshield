@@ -13,4 +13,4 @@ data:
   CB_RECOVERY_TIMEOUT: "15.0"
   OTEL_ENABLED: "true"
   OTEL_SERVICE_NAME: "edgeshield-gateway"
-  OTEL_EXPORTER_OTLP_ENDPOINT: "http://signoz-otel-collector.signoz.svc.cluster.local:4318"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger.jaeger.svc.cluster.local:4318"

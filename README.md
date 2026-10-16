@@ -3,10 +3,10 @@
 [![Python](https://img.shields.io/badge/Python-3.12-blue.svg?logo=python&logoColor=white)](https://python.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![Redis](https://img.shields.io/badge/Redis-Distributed%20Pipelines-DC382D.svg?logo=redis&logoColor=white)](https://redis.io)
-[![OpenTelemetry](https://img.shields.io/badge/OpenTelemetry-SigNoz%20Native-F5A800.svg?logo=opentelemetry&logoColor=white)](https://signoz.io)
+[![OpenTelemetry](https://img.shields.io/badge/OpenTelemetry-Jaeger%20Tracing-002f6c.svg?logo=opentelemetry&logoColor=white)](https://www.jaegertracing.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-**EdgeShield** is a production-grade, distributed API Gateway and Rate-Limiting engine built in **Pure Python 3.12** using `FastAPI`, `AsyncIO`, and asynchronous Redis pipelines. Engineered for high-throughput microservice ecosystems, it protects upstream services against traffic spikes, noisy neighbors, and brute-force bursts while exporting native distributed traces and metrics to **SigNoz**.
+**EdgeShield** is a production-grade, distributed API Gateway and Rate-Limiting engine built in **Pure Python 3.12** using `FastAPI`, `AsyncIO`, and asynchronous Redis pipelines. Engineered for high-throughput microservice ecosystems, it protects upstream services against traffic spikes, noisy neighbors, and brute-force bursts while exporting native distributed traces and metrics to **Jaeger**.
 
 ---
 
@@ -51,7 +51,7 @@
                         │                                  │
       Reverse Proxy     ▼                OTLP Spans/       ▼
 ┌───────────────────────────────┐        Metrics   ┌──────────────────────────┐
-│  Upstream Microservices       │                  │  SigNoz OTel Collector   │
+│  Upstream Microservices       │                  │  Jaeger OTel Collector   │
 │  (DevATS / AMAE / etc.)       │                  │  (:4318 OTLP / Traces)   │
 └───────────────────────────────┘                  └──────────────────────────┘
 ```
@@ -64,15 +64,15 @@
    - Evaluates sliding windows atomically using Redis Sorted Sets (`ZSET`) and pipelines in a single transaction round-trip, utilizing monotonic `ZRANK` guarantees to eliminate *check-then-act* concurrency bugs under high load.
 2. **Dual-Tier Resilient Fallback (In-Memory Circuit Breaker):**
    - If the Redis cluster experiences network partitions, high latency, or crashes, the in-process Circuit Breaker fast-fails to an in-memory sliding window cache, preserving service availability and shielding upstream services from being flooded.
-3. **End-to-End SigNoz Observability (OpenTelemetry Native):**
-   - Automatically exports distributed spans and custom metrics (`edgeshield_requests_total`, `edgeshield_ratelimit_blocked_total`, `edgeshield_redis_latency_seconds`) to the cluster's **SigNoz OTel Collector** (`:4318`), injecting W3C `traceparent` headers into upstream requests for full distributed flamegraphs.
+3. **End-to-End Jaeger Observability (OpenTelemetry Native):**
+   - Automatically exports distributed spans and custom metrics (`edgeshield_requests_total`, `edgeshield_ratelimit_blocked_total`, `edgeshield_redis_latency_seconds`) to the cluster's **Jaeger OTel Collector** (`:4318`), injecting W3C `traceparent` headers into upstream requests for full distributed flamegraphs.
 4. **RFC 7807 & Standard HTTP Rate-Limit Headers:**
    - Responds with `application/problem+json` payload accompanied by standard headers: `Retry-After`, `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`, and `X-RateLimit-Tier`.
 5. **Spec-Driven Development & Architecture Decision Records:**
    - Fully documented with ADRs:
      - [ADR 0001: Pure Python Distributed Rate Limiting](docs/adr/0001-pure-python-redis-rate-limiting.md)
      - [ADR 0002: In-Memory Circuit Breaker Fallback](docs/adr/0002-circuit-breaker-in-memory-fallback.md)
-     - [ADR 0003: OpenTelemetry & Native SigNoz Integration](docs/adr/0003-signoz-opentelemetry-telemetry.md)
+     - [ADR 0003: OpenTelemetry & Native Jaeger Integration](docs/adr/0003-jaeger-opentelemetry-telemetry.md)
 
 ---
 
@@ -118,6 +118,6 @@ kubectl apply -f k8s/deployment.yaml
 kubectl apply -f k8s/service.yaml
 ```
 
-Environment variables configured for SigNoz:
-* `OTEL_EXPORTER_OTLP_ENDPOINT`: `http://signoz-otel-collector.signoz.svc.cluster.local:4318`
+Environment variables configured for Jaeger:
+* `OTEL_EXPORTER_OTLP_ENDPOINT`: `http://jaeger.jaeger.svc.cluster.local:4318`
 * `OTEL_SERVICE_NAME`: `edgeshield-gateway`

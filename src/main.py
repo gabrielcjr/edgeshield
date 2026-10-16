@@ -26,7 +26,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Manages application lifecycle: Redis connection, OTel telemetry, and HTTP client."""
     logger.info("Initializing EdgeShield Gateway [Env: %s]", settings.app_env)
 
-    # 1. Setup OpenTelemetry & SigNoz
+    # 1. Setup OpenTelemetry & Jaeger Tracing
     setup_telemetry(
         service_name=settings.otel_service_name,
         endpoint=settings.otel_exporter_otlp_endpoint,
@@ -90,7 +90,7 @@ def create_app() -> FastAPI:
     app = FastAPI(
         title=settings.app_name,
         version="0.1.0",
-        description="High-Performance Distributed API Gateway & Rate-Limiter with SigNoz Observability",
+        description="High-Performance Distributed API Gateway & Rate-Limiter with Jaeger OpenTelemetry Tracing",
         lifespan=lifespan,
     )
 
@@ -122,7 +122,7 @@ def create_app() -> FastAPI:
             "status": "healthy",
             "service": settings.app_name,
             "circuit_breaker": cb_state,
-            "signoz_endpoint": settings.otel_exporter_otlp_endpoint,
+            "tracing_endpoint": settings.otel_exporter_otlp_endpoint,
         }
 
     @app.get("/api/v1/status", tags=["Operations"])
@@ -133,7 +133,7 @@ def create_app() -> FastAPI:
             "gateway": settings.app_name,
             "circuit_breaker_state": cb.state.value if cb else "UNKNOWN",
             "tiers": {k: v.model_dump() for k, v in settings.tiers.items()},
-            "signoz_telemetry_enabled": settings.otel_enabled,
+            "tracing_enabled": settings.otel_enabled,
         }
 
     @app.get("/api/mock/ping", tags=["Mock"])

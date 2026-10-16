@@ -60,7 +60,7 @@ class ReverseProxyEngine:
     async def proxy(self, request: Request, target_path: str = "") -> Response:
         """
         Forwards the incoming ASGI request to the upstream target service,
-        injecting W3C TraceContext headers for SigNoz distributed tracing.
+        injecting W3C TraceContext headers for Jaeger distributed tracing.
         """
         method = request.method
         url_path = target_path or request.url.path
@@ -78,7 +78,7 @@ class ReverseProxyEngine:
         }
         forward_headers["host"] = host_header or "localhost"
 
-        # 2. Inject W3C TraceContext for SigNoz distributed tracing
+        # 2. Inject W3C TraceContext for Jaeger distributed tracing
         carrier = {}
         TraceContextTextMapPropagator().inject(carrier)
         forward_headers.update(carrier)

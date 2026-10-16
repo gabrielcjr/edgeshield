@@ -34,7 +34,7 @@ We implement all distributed rate limiting algorithms exclusively in **Pure Pyth
 ### Positive
 * **100% Python Codebase:** Eliminates external Lua dependencies; testable natively using `fakeredis` and standard Python mocking.
 * **Maintainability & Typing:** Full type hints (`typing`, Pydantic models) across all rate limiting paths.
-* **Observability:** Granular span tracking in Python for every pipeline phase and retry loop, directly exportable to SigNoz.
+* **Observability:** Granular span tracking in Python for every pipeline phase and retry loop, directly exportable to Jaeger / OpenTelemetry.
 
 ### Negative / Trade-offs
 * Requires pipeline/transaction handling in Python; mitigated by asynchronous pipelining reducing network round-trip overhead.
